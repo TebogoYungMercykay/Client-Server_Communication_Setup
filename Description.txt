@@ -6,18 +6,18 @@ For this task i will be simulating a chat application using a client-server comm
 Each client communications will be handled by 2 threads, a reader and a writer
 - **A Reader**: Checks for any new message, on the server, for the client and logs the message in the clients chat.
 - **A Writer**: Sends new messages, destined for a specific client, to the server and logs the message in the clients chat.
--  I will create and initialize at-least 4 client objects
+- I will create and initialize at-least 4 client objects
 	- initialize at-least 10 random messages to send to a randomly selected client
 	- Example: { message: [random message], recipient: [client-name]}
 
 
 A server will be represented by a data-structure, holding messages for clients
--  That is, each thread has a fixed location on the server where it receives new messages
+- That is, each thread has a fixed location on the server where it receives new messages
 - The server does not keep chat history, a new message for a specific client overrides the old one
 
 # 2. Mutual Exclusion
 I will have to enforce mutual exclusion at the following key points:
--  ## Client chat
+- ## Client chat
 	- The reader and writer shall log messages using mutual exclusion
 - ## Server
 	- Mutual exclusion shall be enforced to manage writers writing to the same client
