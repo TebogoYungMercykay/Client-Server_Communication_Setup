@@ -1,0 +1,50 @@
+This aims to test all the concepts that I have learned so far regarding mutual exclusion and locking via practical implementation.
+
+# Explanation
+For this task i will be simulating a chat application using a client-server communication setup. A client-server commutation allows multiple clients to communicate with each other by sending a message destined for another client via a central server.  The server knows all the clients in the network.  The communication between clients is simulated without the use of sockets, rather using only multi-threading.
+# 1. Implementation
+Each client communications will be handled by 2 threads, a reader and a writer
+- **A Reader**: Checks for any new message, on the server, for the client and logs the message in the clients chat.
+- **A Writer**: Sends new messages, destined for a specific client, to the server and logs the message in the clients chat.
+- I will create and initialize at-least 4 client objects
+	- initialize at-least 10 random messages to send to a randomly selected client
+	- Example: { message: [random message], recipient: [client-name]}
+
+
+A server will be represented by a data-structure, holding messages for clients
+- That is, each thread has a fixed location on the server where it receives new messages
+- The server does not keep chat history, a new message for a specific client overrides the old one
+
+# 2. Mutual Exclusion
+I will have to enforce mutual exclusion at the following key points:
+- ## Client chat
+	- The reader and writer shall log messages using mutual exclusion
+- ## Server
+	- Mutual exclusion shall be enforced to manage writers writing to the same client
+# 3. Output
+The following output will be produced:
+- When a thread attempt to send a message:
+	(SEND) [Thread-Name]: { sender:[client-name] , recipient:[client-name]}.
+- When a thread successfully sent a message:
+	(SEND) [Thread-Name]: SUCCESSFUL.
+- When a thread reads a new message:
+	(RECEIVE) [Thread-Name]: { recipient:[client-name], sender:[client-name] }.
+
+# 4. Notes
+- I will have to get creative with handling threads, queues and locks.
+- A general rule of thumb is that each queue should have their OWN lock when accessed.
+- Any locks used in the program will be written from scratch. i.e NO using java's pre-built locks.
+- I might use some of Java's pre-built data structures.
+- Any locks used will be FAIR
+
+# 5. Concepts
+- Consensus.
+- Semaphores.
+- TASLock.
+- TTASLock
+- Exponential Backoff.
+- ALock.
+- CLH Lock.
+- Composite Lock.
+- Fine grain synchronisation.
+- OptimisticList synchronisation.
