@@ -2,9 +2,7 @@ import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-// - *Message*: This class will represent a message sent or received by a client. It should have properties like `sender`, `recipient`, and `content`. It should also override the `toString()`, `equals()`, and `hashCode()` methods.
-
-// java
+// This class will represent a message sent or received by a client.
 
 public class Message {
     private String sender;
