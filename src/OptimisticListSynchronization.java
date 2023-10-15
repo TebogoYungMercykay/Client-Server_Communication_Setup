@@ -1,31 +1,28 @@
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 @SuppressWarnings({ "unchecked", "rawtypes" })
-
 
 public class OptimisticListSynchronization<T> {
     private Message<T> head;
 
-    public OptemisticList() {
-        head = new Message(Integer.MIN_VALUE, -1, 0);
-        head.next = new Message(Integer.MAX_VALUE, -1, 0);
+    public OptimisticListSynchronization() {
+        head = new Message(Integer.MIN_VALUE, "Random", "JP", "JK");
+        head.next = new Message(Integer.MAX_VALUE, "Random", "JG", "JK");
     }
 
     private boolean validate(Message predecessor, Message current) {
-        Message node = head;
-        while (node.key <= predecessor.key) {
-            if (node == predecessor) {
+        Message messageNode = head;
+        while (messageNode.hashCodeKey <= predecessor.hashCodeKey) {
+            if (messageNode == predecessor) {
                 return predecessor.next == current;
             }
-            node = node.next;
+            messageNode = messageNode.next;
         }
         return false;
     }
 
-    public boolean add(T item, int person, long time) {
+    public boolean add(T item, String message, String recipient, String sender) {
         Message predecessor = head, current = predecessor.next;
-        int key = item.hashCode();
-        while (current.key <= key) {
+        int hashCodeKey = item.hashCode();
+        while (current.hashCodeKey <= hashCodeKey) {
             if (item == current.item) {
                 break;
             }
@@ -36,12 +33,14 @@ public class OptimisticListSynchronization<T> {
             predecessor.lock.lock();
             current.lock.lock();
             if (validate(predecessor, current)) {
-                if (key == current.key) {
+                if (hashCodeKey == current.hashCodeKey) {
                     return false;
                 } else {
-                    Message node = new Message(item, person, time);
-                    node.next = current;
-                    predecessor.next = node;
+                    Message messageNode = new Message(item, message, recipient, sender);
+                    messageNode.next = current;
+                    predecessor.next = messageNode;
+                    // Message Sent
+                    System.out.println("(SEND) " + Thread.currentThread().getName() + ": SUCCESSFUL");
                     return true;
                 }
             } else {
@@ -55,8 +54,9 @@ public class OptimisticListSynchronization<T> {
 
     public boolean remove(T item) {
         Message predecessor = head, current = head.next;
-        int key = item.hashCode();
-        while (current.key <= key) {
+        int hashCodeKey = item.hashCode();
+        printMessageList();
+        while (current.hashCodeKey <= hashCodeKey) {
             if (item == current.item) {
                 break;
             }
@@ -79,5 +79,20 @@ public class OptimisticListSynchronization<T> {
             current.lock.unlock();
             predecessor.lock.unlock();
         }
+    }
+
+    private void printMessageList() {
+        Message current = head.next;
+        String outputString = "List: ";
+        if (current.getContent() != "Random") {
+            outputString += "[" + current.threadName + " (Sender: " + current.getSender() + ", Receiver: " + current.getRecipient() + ", Content: " + current.getContent() + ")]";
+        }
+        while (current.next != null) {
+            current = current.next;
+            if (current.getSender() != "JK") {
+                outputString += " -> [" + current.threadName + " (Sender: " + current.getSender() + ", Receiver: " + current.getRecipient() + ", Content: " + current.getContent() + ")]";
+            }
+        }
+        System.out.println(outputString);
     }
 }
