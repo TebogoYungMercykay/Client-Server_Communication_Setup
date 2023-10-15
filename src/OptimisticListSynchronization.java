@@ -70,7 +70,7 @@ public class OptimisticListSynchronization<T> {
             current.lock.lock();
             if (validate(predecessor, current)) {
                 if (current.item == item) {
-                    this.head.next = new Message(Integer.MAX_VALUE, "Random", "JG", "JK");
+                    predecessor.next = current.next;
                     return true;
                 } else {
                     return false;
@@ -85,14 +85,14 @@ public class OptimisticListSynchronization<T> {
 
     private void printMessageList() {
         Message current = this.head.next;
-        String outputString = "Message List:\n";
+        String outputString = "\n  Client Received Messages List:\n";
         if (current.getContent() != "Random") {
-            outputString += "(RECEIVE) [" + current.threadName + "] { recipient: " + current.getRecipient() + ", sender: " + current.getSender() + ", Content: " + current.getContent() + " }\n";
+            outputString += "(RECEIVE) [" + current.getName() + "] " + current.toString() + "\n";
         }
         while (current.next != null) {
             current = current.next;
             if (current.getSender() != "JK") {
-                outputString += "(RECEIVE) [" + current.threadName + "] { recipient: " + current.getRecipient() + ", sender: " + current.getSender() + ", Content: " + current.getContent() + " }\n";
+                outputString += "(RECEIVE) [" + current.getName() + "] " + current.toString() + "\n";
             }
         }
         System.out.println(outputString);
