@@ -2,13 +2,13 @@
 
 @SuppressWarnings({ "unchecked", "rawtypes", "generics" })
 public class Client {
-    private OptimisticListSynchronization messages;
+    private MessageSynchronization messages;
     private TTASLock lock;
     String clientName;
 
     public Client(String clientName) {
         this.clientName = clientName;
-        this.messages = new OptimisticListSynchronization<>();
+        this.messages = new MessageSynchronization<>();
         this.lock = new TTASLock();
     }
 
@@ -16,16 +16,16 @@ public class Client {
         System.out.println("(SEND) [" + Thread.currentThread().getName() + "]: { sender:[" + sender + "] , recipient:[" + recipient + "]}");
         lock.lock();
         try {
-            while (!messages.write(Thread.currentThread(), message, recipient, sender)){};
+            messages.write(Thread.currentThread(), message, recipient, sender);
         } finally {
             lock.unlock();
         }
     }
 
-    public void read() {
+    public void read(String recipient) {
         lock.lock();
         try {
-            while (!messages.read(Thread.currentThread())){};
+            messages.read(recipient);
         } finally {
             lock.unlock();
         }
