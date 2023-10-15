@@ -85,7 +85,7 @@ public class OptimisticListSynchronization<T> {
 
     private void printMessageList() {
         Message current = this.head.next;
-        String outputString = "\n  Client Received Messages List:\n";
+        String outputString = "";
         if (current.getContent() != "Random") {
             outputString += "(RECEIVE) [" + current.getName() + "] " + current.toString() + "\n";
         }
@@ -95,6 +95,6 @@ public class OptimisticListSynchronization<T> {
                 outputString += "(RECEIVE) [" + current.getName() + "] " + current.toString() + "\n";
             }
         }
-        System.out.println(outputString);
+        System.out.print(outputString);
     }
 }
