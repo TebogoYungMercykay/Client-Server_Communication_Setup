@@ -11,9 +11,10 @@ public class Client {
     }
 
     public void write(String message, String recipient, String sender) {
+        System.out.println("(SEND) [" + Thread.currentThread() + "]: { sender:[" + sender + "] , recipient:[" + recipient + "]}");
         lock.lock();
         try {
-            while (!messages.add(Thread.currentThread(), message, recipient, sender)){};
+            while (!messages.write(Thread.currentThread(), message, recipient, sender)){};
         } finally {
             lock.unlock();
         }
@@ -22,7 +23,7 @@ public class Client {
     public void read() {
         lock.lock();
         try {
-            while (!messages.remove(Thread.currentThread())){};
+            while (!messages.read(Thread.currentThread())){};
         } finally {
             lock.unlock();
         }
