@@ -9,6 +9,7 @@ public class Message {
     private String recipient;
     private String content;
     public int key;
+    public Message next;
     public Lock lock = new ReentrantLock();
     String threadName;
 
