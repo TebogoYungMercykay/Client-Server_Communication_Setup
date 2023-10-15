@@ -8,10 +8,7 @@ public class Main {
             clients[i] = new Client();
         }
 
-        ClientChat[] ClientChats = new ClientChat[5];
-        for (int i = 0; i < ClientChats.length; i++) {
-            ClientChats[i] = new ClientChat(clients); // Pass the array of clients to each ClientChat
-            ClientChats[i].start();
-        }
+        Server ClientServer = new Server(clients);
+        ClientServer.start();
     }
 }
