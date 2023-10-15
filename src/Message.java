@@ -10,7 +10,7 @@ public class Message<T> {
     private String sender;
     private String recipient;
     private String content;
-    public int key;
+    public int hashCodeKey;
     public Message<T> next;
     public Lock lock = new ReentrantLock();
     String threadName;
@@ -22,7 +22,7 @@ public class Message<T> {
         this.recipient = recipient;
         this.content = message;
         this.threadName = Thread.currentThread().getName();
-        this.key = hashCode();
+        this.hashCodeKey = hashCode();
     }
 
     public Message() {
@@ -32,7 +32,7 @@ public class Message<T> {
         this.recipient = "John Doe";
         this.content = "Hey There Hero, You've Been Out A Long Time!!";
         this.threadName = Thread.currentThread().getName();
-        this.key = hashCode();
+        this.hashCodeKey = hashCode();
     }
 
     @Override
@@ -68,8 +68,8 @@ public class Message<T> {
         return this.content;
     }
 
-    public int getKey() {
-        return this.key;
+    public int getHashCodeKey() {
+        return this.hashCodeKey;
     }
 
     public void setSender(String sender) {
