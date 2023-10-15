@@ -1,78 +1,43 @@
 // - *Server*: This class will represent the Client Chat Server.
 import java.util.*;
+import java.util.ArrayList;
+import java.util.Random;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Server extends Thread {
-    private Map<String, List<Message>> clientMessages;
+    private Map<String, Message> clientMessages;
     private AndersonLock lock;
-    private volatile Client[] serverClients;
-    Queue<String> myReceivers;
     public int numMessages;
     String[] clientNames;
 
-    public Server(Client[] clients, String[] clientNames, int numMessages) {
-        this.serverClients = clients;
+    public Server(String[] clientNames, int numMessages) {
         this.clientMessages = new HashMap<>();
         this.lock = new AndersonLock();
         this.numMessages = numMessages;
         this.clientNames = clientNames;
-        this.myReceivers = null;
     }
 
-    public void run() {
-        this.myReceivers = this.generateReceiver(this.numMessages + 1);
-
-        for (int i = 0; i < this.numMessages; i++) {
-            for (Client myClient : this.serverClients) {
-                // Sender and Receiver Details
-                String sender = myClient.getClientName();
-                String recipient = this.myReceivers.poll();
-                while (sender == recipient) {
-                    // Making Sure the User doesn't send a Message to Oneself
-                    this.myReceivers.add(recipient);
-                    recipient = this.myReceivers.poll();
-                }
-                if (sender != null && recipient != null) {
-                    // Setting the Start Time for the Request
-                    long startTime = System.currentTimeMillis();
-                    String sentMessage = this.getMessage();
-                    // Sending the Message to the Recipient
-                    myClient.write(sentMessage, recipient, sender);
-                    Message messageObject = new Message(Thread.currentThread(), sentMessage, recipient, sender);
-                    // Adding the Message to the Map for the Receiver
-                    this.setMessage(recipient, messageObject);
-                    try {
-                        long time = (int) Math.floor(Math.random() * (1000 + 1 - 100 + 1) + 100);
-                        Thread.sleep(time);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    // Reading the Message
-                    myClient.read();
-                    if (System.currentTimeMillis() - startTime < 200) {
-                        try {
-                            Thread.sleep(200 - (System.currentTimeMillis() - startTime));
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
+    public String getRecipient(String clientName) {
+        Random rand = new Random();
+        String recipient = null;
+        ArrayList<String> receiverList = new ArrayList<>(this.generateMoreSenders(2));
+        if (!receiverList.isEmpty()) {
+            int randomIndex = rand.nextInt(receiverList.size());
+            recipient = receiverList.get(randomIndex);
+            while (clientName.equals(recipient)) {
+                // Making Sure the User doesn't send a Message to Oneself
+                randomIndex = rand.nextInt(receiverList.size());
+                recipient = receiverList.get(randomIndex);
             }
         }
-
-        System.out.println("\nEveryone went Offline in the Server..\n");
-        System.out.println("Server Highlights:");
-        this.printAllReceivedMessages();
-        System.out.println("\nServer is Offline..");
+        return recipient != null ? recipient : "John Doe";
     }
 
     public void setMessage(String clientName, Message message) {
         lock.lock();
         try {
-            if (!this.clientMessages.containsKey(clientName)) {
-                this.clientMessages.put(clientName, new ArrayList<>());
-            }
-            this.clientMessages.get(clientName).add(message);
+            this.clientMessages.put(clientName, message);
+            System.out.println("(SEND) " + Thread.currentThread().getName() + ": SUCCESSFUL");
         } finally {
             lock.unlock();
         }
@@ -81,23 +46,13 @@ public class Server extends Thread {
     public Message getMessage(String clientName) {
         lock.lock();
         try {
-            List<Message> messages = this.clientMessages.get(clientName);
-            if (messages != null && !messages.isEmpty()) {
-                return messages.get(0);
+            Message messages = this.clientMessages.get(clientName);
+            if (messages != null) {
+                return messages;
             }
             return null;
         } finally {
             lock.unlock();
-        }
-    }
-
-    public void printAllReceivedMessages() {
-        // Print the clientMessages map
-        for (Map.Entry<String, List<Message>> entry : this.clientMessages.entrySet()) {
-            System.out.println("Messages SENT to " + entry.getKey() + ":");
-            for (Message message : entry.getValue()) {
-                System.out.println(message.messageDetails());
-            }
         }
     }
 
