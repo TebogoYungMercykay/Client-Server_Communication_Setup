@@ -40,6 +40,10 @@ public class Message<T> {
         return "Message: { sender: " + sender + ", recipient: " + recipient + ", content: " + content + " }";
     }
 
+    public String messageDetails() {
+        return "(Received): { recipient: " + recipient + ", content: " + content + " }";
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
