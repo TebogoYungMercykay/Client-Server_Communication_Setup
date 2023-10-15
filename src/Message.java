@@ -3,13 +3,15 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 // This class will represent a message sent or received by a client.
+@SuppressWarnings({ "unchecked" })
 
-public class Message {
+public class Message<T> {
+    public T item;
     private String sender;
     private String recipient;
     private String content;
     public int key;
-    public Message next;
+    public Message<T> next;
     public Lock lock = new ReentrantLock();
     String threadName;
 
@@ -39,7 +41,7 @@ public class Message {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         // Casting
-        Message message = (Message) obj;
+        Message<T> message = (Message<T>) obj;
         return Objects.equals(sender, message.sender) && Objects.equals(recipient, message.recipient) && Objects.equals(content, message.content);
     }
 
