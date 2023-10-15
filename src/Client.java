@@ -4,8 +4,10 @@
 public class Client {
     private OptimisticListSynchronization messages;
     private TTASLock lock;
+    String clientName;
 
-    public Client() {
+    public Client(String clientName) {
+        this.clientName = clientName;
         this.messages = new OptimisticListSynchronization<>();
         this.lock = new TTASLock();
     }
@@ -27,5 +29,9 @@ public class Client {
         } finally {
             lock.unlock();
         }
+    }
+
+    public String getClientName() {
+        return this.clientName;
     }
 }
