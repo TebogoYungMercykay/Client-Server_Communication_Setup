@@ -1,50 +1,51 @@
-// - *ClientChat*: This class will represent the Client Chat Server.
-// import java.util.Map;
+// - *Server*: This class will represent the Client Chat Server.
+import java.util.Map;
+import java.util.List;
 import java.util.Random;
-// import java.util.HashMap;
-// import java.util.List;
-// import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Server extends Thread {
-    // private Map<String, List<Message>> clientMessages;
-    // private AndersonLock lock;
+    private Map<String, List<Message>> clientMessages;
+    private AndersonLock lock;
     private volatile Client[] serverClients;
-    public int person;
+    public int numMessages;
 
-    public Server(Client[] clients) {
+    public Server(Client[] clients, int numMessages) {
         this.serverClients = clients;
-        // this.clientMessages = new HashMap<>();
-        // this.lock = new AndersonLock();
+        this.clientMessages = new HashMap<>();
+        this.lock = new AndersonLock();
+        this.numMessages = numMessages;
     }
 
-    // public void setMessage(String clientName, Message message) {
-    //     lock.lock();
-    //     try {
-    //         if (!clientMessages.containsKey(clientName)) {
-    //             clientMessages.put(clientName, new ArrayList<>());
-    //         }
-    //         clientMessages.get(clientName).add(message);
-    //     } finally {
-    //         lock.unlock();
-    //     }
-    // }
+    public void setMessage(String clientName, Message message) {
+        lock.lock();
+        try {
+            if (!clientMessages.containsKey(clientName)) {
+                clientMessages.put(clientName, new ArrayList<>());
+            }
+            clientMessages.get(clientName).add(message);
+        } finally {
+            lock.unlock();
+        }
+    }
 
-    // public Message getMessage(String clientName) {
-    //     lock.lock();
-    //     try {
-    //         List<Message> messages = clientMessages.get(clientName);
-    //         if (messages != null && !messages.isEmpty()) {
-    //             return messages.get(0); // Get the first message for simplicity
-    //         }
-    //         return null;
-    //     } finally {
-    //         lock.unlock();
-    //     }
-    // }
+    public Message getMessage(String clientName) {
+        lock.lock();
+        try {
+            List<Message> messages = clientMessages.get(clientName);
+            if (messages != null && !messages.isEmpty()) {
+                return messages.get(0);
+            }
+            return null;
+        } finally {
+            lock.unlock();
+        }
+    }
 
     public void run() {
-        for (int i = 1; i <= 5; i++) {
+        for (int i = 0; i < this.numMessages; i++) {
             for (Client myClient : serverClients) {
                 long startTime = System.currentTimeMillis();
                 String recipient = "Jane" + generateRandomMessage(4);
