@@ -1,9 +1,5 @@
 // - *Server*: This class will represent the Client Chat Server.
-import java.util.Map;
-import java.util.List;
-import java.util.Random;
-import java.util.HashMap;
-import java.util.ArrayList;
+import java.util.*;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Server extends Thread {
@@ -45,28 +41,84 @@ public class Server extends Thread {
     }
 
     public void run() {
+        Queue<String> mySenders = generateSender(this.numMessages + 1);
+        Queue<String> myReceivers = generateReceiver(this.numMessages + 1);
+
         for (int i = 0; i < this.numMessages; i++) {
             for (Client myClient : serverClients) {
-                long startTime = System.currentTimeMillis();
-                String recipient = "Jane" + generateRandomMessage(4);
-                String sender = "John" + generateRandomMessage(4);
-                myClient.write(generateRandomMessage(10), recipient, sender);
-                try {
-                    long time = (int) Math.floor(Math.random() * (1000 + 1 - 100 + 1) + 100);
-                    Thread.sleep(time);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                String sender = mySenders.poll();
+                String recipient = myReceivers.poll();
+                while (sender == recipient) {
+                    myReceivers.add(recipient);
+                    recipient = myReceivers.poll();
                 }
-                myClient.read();
-                if (System.currentTimeMillis() - startTime < 200) {
+                if (sender != null && recipient != null) {
+                    long startTime = System.currentTimeMillis();
+                    myClient.write(getMessage(), recipient, sender);
                     try {
-                        Thread.sleep(200 - (System.currentTimeMillis() - startTime));
+                        long time = (int) Math.floor(Math.random() * (1000 + 1 - 100 + 1) + 100);
+                        Thread.sleep(time);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
+                    }
+                    myClient.read();
+                    if (System.currentTimeMillis() - startTime < 200) {
+                        try {
+                            Thread.sleep(200 - (System.currentTimeMillis() - startTime));
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
         }
+    }
+
+    public static Queue<String> convertListToQueue(List<String> list) {
+        return new LinkedList<>(list);
+    }
+
+    public static Queue<String> generateSender(int numTimesEach) {
+        return convertListToQueue(getShuffledList(numTimesEach));
+    }
+
+    public static Queue<String> generateReceiver(int numTimesEach) {
+        return convertListToQueue(getShuffledList(numTimesEach));
+    }
+
+    public static String getMessage() {
+        String[] greetings = {
+            "Hello, my friend! Hope you're having a good day.",
+            "Hey buddy! Long time no see.",
+            "Hi there! How have you been?",
+            "Greetings, pal! What's new with you?",
+            "Hey! It's always great to hear from you.",
+            "Hello, friend! What's the good news today?",
+            "Hi, mate! How's everything going?",
+            "Hey there! Missed you a lot.",
+            "Greetings! How's your day going so far?",
+            "Hello! Hope everything is going well with you.",
+            "Hi, friend! Let's catch up soon.",
+            "Hey, buddy! Can't wait to hear about your day.",
+            "Greetings, mate! Let's get together soon.",
+            "Hello! Always a pleasure to see you.",
+            "Hi there, friend! Looking forward to our next meet-up."
+        };
+
+        Random rand = new Random();
+        int randomIndex = rand.nextInt(greetings.length);
+
+        return greetings[randomIndex];
+    }
+
+    public static List<String> getShuffledList(int numTimesEach) {
+        String names[] = { "Thabo", "Ntando", "Luke", "Scott", "Michael" };
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < numTimesEach; i++) {
+            list.addAll(Arrays.asList(names));
+        }
+        Collections.shuffle(list);
+        return list;
     }
 
     public static String generateRandomMessage(int length) {
