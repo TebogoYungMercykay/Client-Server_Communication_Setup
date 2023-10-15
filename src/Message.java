@@ -3,7 +3,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 // This class will represent a message sent or received by a client.
-@SuppressWarnings({ "unchecked" })
+@SuppressWarnings({ "unchecked", "rawtypes" })
 
 public class Message<T> {
     public T item;
@@ -11,7 +11,7 @@ public class Message<T> {
     private String recipient;
     private String content;
     public int hashCodeKey;
-    public Message<T> next;
+    public Message next;
     public Lock lock = new ReentrantLock();
     String threadName;
 
@@ -22,7 +22,7 @@ public class Message<T> {
         this.recipient = recipient;
         this.content = message;
         this.threadName = Thread.currentThread().getName();
-        this.hashCodeKey = hashCode();
+        this.hashCodeKey = item.hashCode();
     }
 
     public Message() {
@@ -49,10 +49,10 @@ public class Message<T> {
         return Objects.equals(sender, message.sender) && Objects.equals(recipient, message.recipient) && Objects.equals(content, message.content);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(sender, recipient, content);
-    }
+    // @Override
+    // public int hashCode() {
+    //     return Objects.hash(sender, recipient, content);
+    // }
 
     // Getters and Setters
 
@@ -82,5 +82,9 @@ public class Message<T> {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getName() {
+        return Thread.currentThread().getName();
     }
 }
