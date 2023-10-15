@@ -24,15 +24,19 @@ public class Server extends Thread {
 
         for (int i = 0; i < this.numMessages; i++) {
             for (Client myClient : this.serverClients) {
+                // Sender and Receiver Details
                 String sender = myClient.getClientName();
                 String recipient = this.myReceivers.poll();
                 while (sender == recipient) {
+                    // Making Sure the User doesn't send a Message to Oneself
                     this.myReceivers.add(recipient);
                     recipient = this.myReceivers.poll();
                 }
                 if (sender != null && recipient != null) {
+                    // Setting the Start Time for the Request
                     long startTime = System.currentTimeMillis();
                     String sentMessage = this.getMessage();
+                    // Sending the Message to the Recipient
                     myClient.write(sentMessage, recipient, sender);
                     Message messageObject = new Message(Thread.currentThread(), sentMessage, recipient, sender);
                     // Adding the Message to the Map for the Receiver
@@ -43,6 +47,7 @@ public class Server extends Thread {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    // Reading the Message
                     myClient.read();
                     if (System.currentTimeMillis() - startTime < 200) {
                         try {
