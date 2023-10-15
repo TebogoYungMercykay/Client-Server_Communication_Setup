@@ -37,6 +37,8 @@ public class Server extends Thread {
                     long startTime = System.currentTimeMillis();
                     String sentMessage = this.getMessage();
                     // Sending the Message to the Recipient
+                    Thread myWriter = new WriterThread(myClient, sentMessage, recipient);
+
                     myClient.write(sentMessage, recipient, sender);
                     Message messageObject = new Message(Thread.currentThread(), sentMessage, recipient, sender);
                     // Adding the Message to the Map for the Receiver

@@ -4,17 +4,15 @@ public class WriterThread extends Thread {
     private Client client;
     private String message;
     private String recipient;
-    private String sender;
 
-    public WriterThread(Client client, String message, String recipient, String sender) {
+    public WriterThread(Client client, String message, String recipient) {
         this.client = client;
         this.message = message;
         this.recipient = recipient;
-        this.sender = sender;
     }
 
     @Override
     public void run() {
-        client.write(message, recipient, sender);
+        client.write(message, recipient);
     }
 }
