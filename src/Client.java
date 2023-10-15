@@ -11,7 +11,7 @@ public class Client {
     }
 
     public void write(String message, String recipient, String sender) {
-        System.out.println("(SEND) [" + Thread.currentThread() + "]: { sender:[" + sender + "] , recipient:[" + recipient + "]}");
+        System.out.println("(SEND) [" + Thread.currentThread().getName() + "]: { sender:[" + sender + "] , recipient:[" + recipient + "]}");
         lock.lock();
         try {
             while (!messages.write(Thread.currentThread(), message, recipient, sender)){};
