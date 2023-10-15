@@ -54,7 +54,10 @@ public class Server extends Thread {
                 }
                 if (sender != null && recipient != null) {
                     long startTime = System.currentTimeMillis();
-                    myClient.write(getMessage(), recipient, sender);
+                    String sentMessage = getMessage();
+                    myClient.write(sentMessage, recipient, sender);
+                    Message messageObject = new Message(Thread.currentThread(),sentMessage, recipient, sender);
+                    setMessage(recipient, messageObject); // Add the message to the map
                     try {
                         long time = (int) Math.floor(Math.random() * (1000 + 1 - 100 + 1) + 100);
                         Thread.sleep(time);
@@ -119,6 +122,11 @@ public class Server extends Thread {
         }
         Collections.shuffle(list);
         return list;
+    }
+
+    public static String[] getServerClients() {
+        String names[] = { "Thabo", "Ntando", "Luke", "Scott", "Michael" };
+        return names;
     }
 
     public static String generateRandomMessage(int length) {
