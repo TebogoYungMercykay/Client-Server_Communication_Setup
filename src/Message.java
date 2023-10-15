@@ -41,7 +41,7 @@ public class Message<T> {
     }
 
     public String messageDetails() {
-        return "(Received): { recipient: " + recipient + ", content: " + content + " }";
+        return "(Received): { sender: " + sender + ", content: " + content + " }";
     }
 
     @Override
