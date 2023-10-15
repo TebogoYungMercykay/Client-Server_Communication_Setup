@@ -19,7 +19,7 @@ public class OptimisticListSynchronization<T> {
         return false;
     }
 
-    public boolean add(T item, String message, String recipient, String sender) {
+    public boolean write(T item, String message, String recipient, String sender) {
         Message predecessor = head, current = predecessor.next;
         int hashCodeKey = item.hashCode();
         while (current.hashCodeKey <= hashCodeKey) {
@@ -52,7 +52,7 @@ public class OptimisticListSynchronization<T> {
         }
     }
 
-    public boolean remove(T item) {
+    public boolean read(T item) {
         Message predecessor = head, current = head.next;
         int hashCodeKey = item.hashCode();
         printMessageList();
@@ -83,14 +83,14 @@ public class OptimisticListSynchronization<T> {
 
     private void printMessageList() {
         Message current = head.next;
-        String outputString = "List: ";
+        String outputString = "Message List:\n";
         if (current.getContent() != "Random") {
-            outputString += "[" + current.threadName + " (Sender: " + current.getSender() + ", Receiver: " + current.getRecipient() + ", Content: " + current.getContent() + ")]";
+            outputString += "(RECEIVE) [" + current.threadName + "] { recipient: " + current.getRecipient() + ", sender: " + current.getSender() + ", Content: " + current.getContent() + " }\n";
         }
         while (current.next != null) {
             current = current.next;
             if (current.getSender() != "JK") {
-                outputString += " -> [" + current.threadName + " (Sender: " + current.getSender() + ", Receiver: " + current.getRecipient() + ", Content: " + current.getContent() + ")]";
+                outputString += "(RECEIVE) [" + current.threadName + "] { recipient: " + current.getRecipient() + ", sender: " + current.getSender() + ", Content: " + current.getContent() + " }\n";
             }
         }
         System.out.println(outputString);
