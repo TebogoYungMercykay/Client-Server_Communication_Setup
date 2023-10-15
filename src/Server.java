@@ -6,26 +6,25 @@ public class Server extends Thread {
     private Map<String, List<Message>> clientMessages;
     private AndersonLock lock;
     private volatile Client[] serverClients;
-    Queue<String> mySenders;
     Queue<String> myReceivers;
     public int numMessages;
+    String[] clientNames;
 
-    public Server(Client[] clients, int numMessages) {
+    public Server(Client[] clients, String[] clientNames, int numMessages) {
         this.serverClients = clients;
         this.clientMessages = new HashMap<>();
         this.lock = new AndersonLock();
         this.numMessages = numMessages;
-        this.mySenders = null;
+        this.clientNames = clientNames;
         this.myReceivers = null;
     }
 
     public void run() {
-        this.mySenders = this.generateSender(this.numMessages + 1);
         this.myReceivers = this.generateReceiver(this.numMessages + 1);
 
         for (int i = 0; i < this.numMessages; i++) {
             for (Client myClient : this.serverClients) {
-                String sender = this.mySenders.poll();
+                String sender = myClient.getClientName();
                 String recipient = this.myReceivers.poll();
                 while (sender == recipient) {
                     this.myReceivers.add(recipient);
@@ -101,7 +100,7 @@ public class Server extends Thread {
         return new LinkedList<>(list);
     }
 
-    public Queue<String> generateSender(int numTimesEach) {
+    public Queue<String> generateMoreSenders(int numTimesEach) {
         return this.convertListToQueue(getShuffledList(numTimesEach));
     }
 
@@ -135,7 +134,7 @@ public class Server extends Thread {
     }
 
     public List<String> getShuffledList(int numTimesEach) {
-        String names[] = { "Thabo", "Ntando", "Luke", "Scott", "Michael" };
+        String names[] = this.getServerClients();
         List<String> list = new ArrayList<>();
         for (int i = 0; i < numTimesEach; i++) {
             list.addAll(Arrays.asList(names));
@@ -145,8 +144,7 @@ public class Server extends Thread {
     }
 
     public String[] getServerClients() {
-        String names[] = { "Thabo", "Ntando", "Luke", "Scott", "Michael" };
-        return names;
+        return this.clientNames;
     }
 
     public String generateRandomMessage(int length) {
