@@ -1,4 +1,4 @@
-// - *ClientChat*: This class will represent the ClientChat.
+// - *ClientChat*: This class will represent the Client Chat Server.
 // import java.util.Map;
 import java.util.Random;
 // import java.util.HashMap;
@@ -6,13 +6,13 @@ import java.util.Random;
 // import java.util.ArrayList;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class ClientChat extends Thread {
+public class Server extends Thread {
     // private Map<String, List<Message>> clientMessages;
     // private AndersonLock lock;
     private volatile Client[] serverClients;
     public int person;
 
-    public ClientChat(Client[] clients) {
+    public Server(Client[] clients) {
         this.serverClients = clients;
         // this.clientMessages = new HashMap<>();
         // this.lock = new AndersonLock();
