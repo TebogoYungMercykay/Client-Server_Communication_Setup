@@ -28,15 +28,14 @@ public class WriterThread extends Thread {
             Message messageObject = new Message(Thread.currentThread(), randomMessage, recipient, this.sender);
             System.out.println("(SEND) [" + Thread.currentThread().getName() + "]: { sender:[" + this.sender + "] , recipient:[" + recipient + "]}");
             this.server.setMessage(this.server.getRecipient(this.sender), messageObject);
+            try {
+                long time = (int) Math.floor(Math.random() * (1000 + 1 - 100 + 1) + 100);
+                Thread.sleep(time);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } finally {
             lock.unlock();
-        }
-        try {
-            Random rand = new Random();
-            int sleepTime = rand.nextInt(801) + 200;
-            Thread.sleep(sleepTime);
-        } catch(Exception exception){
-            exception.printStackTrace();
         }
     }
 

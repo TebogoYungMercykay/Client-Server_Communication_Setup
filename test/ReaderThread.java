@@ -22,15 +22,14 @@ public class ReaderThread extends Thread {
             if (myMessage != null) {
                 System.out.print("(RECEIVE) [" + myMessage.getName() + "] " + myMessage.toString() + "\n");
             }
+            try {
+                long time = (int) Math.floor(Math.random() * (1000 + 1 - 100 + 1) + 100);
+                Thread.sleep(time);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } finally {
             lock.unlock();
-        }
-        try {
-            Random rand = new Random();
-            int sleepTime = rand.nextInt(801) + 200;
-            Thread.sleep(sleepTime);
-        } catch(Exception exception){
-            exception.printStackTrace();
         }
     }
 }
