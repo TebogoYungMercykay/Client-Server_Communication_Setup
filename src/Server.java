@@ -6,6 +6,8 @@ public class Server extends Thread {
     private Map<String, List<Message>> clientMessages;
     private AndersonLock lock;
     private volatile Client[] serverClients;
+    Queue<String> mySenders;
+    Queue<String> myReceivers;
     public int numMessages;
 
     public Server(Client[] clients, int numMessages) {
@@ -13,62 +15,29 @@ public class Server extends Thread {
         this.clientMessages = new HashMap<>();
         this.lock = new AndersonLock();
         this.numMessages = numMessages;
-    }
-
-    public void setMessage(String clientName, Message message) {
-        lock.lock();
-        try {
-            if (!clientMessages.containsKey(clientName)) {
-                clientMessages.put(clientName, new ArrayList<>());
-            }
-            clientMessages.get(clientName).add(message);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    public Message getMessage(String clientName) {
-        lock.lock();
-        try {
-            List<Message> messages = clientMessages.get(clientName);
-            if (messages != null && !messages.isEmpty()) {
-                return messages.get(0);
-            }
-            return null;
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    public void printAllReceivedMessages() {
-        // Print the clientMessages map
-        for (Map.Entry<String, List<Message>> entry : clientMessages.entrySet()) {
-            System.out.println("Messages SENT to " + entry.getKey() + ":");
-            for (Message message : entry.getValue()) {
-                System.out.println(message.messageDetails());
-            }
-        }
+        this.mySenders = null;
+        this.myReceivers = null;
     }
 
     public void run() {
-        Queue<String> mySenders = generateSender(this.numMessages + 1);
-        Queue<String> myReceivers = generateReceiver(this.numMessages + 1);
+        this.mySenders = this.generateSender(this.numMessages + 1);
+        this.myReceivers = this.generateReceiver(this.numMessages + 1);
 
         for (int i = 0; i < this.numMessages; i++) {
-            for (Client myClient : serverClients) {
-                String sender = mySenders.poll();
-                String recipient = myReceivers.poll();
+            for (Client myClient : this.serverClients) {
+                String sender = this.mySenders.poll();
+                String recipient = this.myReceivers.poll();
                 while (sender == recipient) {
-                    myReceivers.add(recipient);
-                    recipient = myReceivers.poll();
+                    this.myReceivers.add(recipient);
+                    recipient = this.myReceivers.poll();
                 }
                 if (sender != null && recipient != null) {
                     long startTime = System.currentTimeMillis();
-                    String sentMessage = getMessage();
+                    String sentMessage = this.getMessage();
                     myClient.write(sentMessage, recipient, sender);
-                    Message messageObject = new Message(Thread.currentThread(),sentMessage, recipient, sender);
+                    Message messageObject = new Message(Thread.currentThread(), sentMessage, recipient, sender);
                     // Adding the Message to the Map for the Receiver
-                    setMessage(recipient, messageObject);
+                    this.setMessage(recipient, messageObject);
                     try {
                         long time = (int) Math.floor(Math.random() * (1000 + 1 - 100 + 1) + 100);
                         Thread.sleep(time);
@@ -86,21 +55,61 @@ public class Server extends Thread {
                 }
             }
         }
+
+        System.out.println("\nEveryone went Offline in the Server..");
+        System.out.println("Server Highlights for All Clients:");
+        this.printAllReceivedMessages();
+        System.out.println("\nServer is Offline..");
     }
 
-    public static Queue<String> convertListToQueue(List<String> list) {
+    public void setMessage(String clientName, Message message) {
+        lock.lock();
+        try {
+            if (!this.clientMessages.containsKey(clientName)) {
+                this.clientMessages.put(clientName, new ArrayList<>());
+            }
+            this.clientMessages.get(clientName).add(message);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public Message getMessage(String clientName) {
+        lock.lock();
+        try {
+            List<Message> messages = this.clientMessages.get(clientName);
+            if (messages != null && !messages.isEmpty()) {
+                return messages.get(0);
+            }
+            return null;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void printAllReceivedMessages() {
+        // Print the clientMessages map
+        for (Map.Entry<String, List<Message>> entry : this.clientMessages.entrySet()) {
+            System.out.println("Messages SENT to " + entry.getKey() + ":");
+            for (Message message : entry.getValue()) {
+                System.out.println(message.messageDetails());
+            }
+        }
+    }
+
+    public Queue<String> convertListToQueue(List<String> list) {
         return new LinkedList<>(list);
     }
 
-    public static Queue<String> generateSender(int numTimesEach) {
-        return convertListToQueue(getShuffledList(numTimesEach));
+    public Queue<String> generateSender(int numTimesEach) {
+        return this.convertListToQueue(getShuffledList(numTimesEach));
     }
 
-    public static Queue<String> generateReceiver(int numTimesEach) {
-        return convertListToQueue(getShuffledList(numTimesEach));
+    public Queue<String> generateReceiver(int numTimesEach) {
+        return this.convertListToQueue(getShuffledList(numTimesEach));
     }
 
-    public static String getMessage() {
+    public String getMessage() {
         String[] greetings = {
             "Hello, my friend! Hope you're having a good day.",
             "Hey buddy! Long time no see.",
@@ -125,7 +134,7 @@ public class Server extends Thread {
         return greetings[randomIndex];
     }
 
-    public static List<String> getShuffledList(int numTimesEach) {
+    public List<String> getShuffledList(int numTimesEach) {
         String names[] = { "Thabo", "Ntando", "Luke", "Scott", "Michael" };
         List<String> list = new ArrayList<>();
         for (int i = 0; i < numTimesEach; i++) {
@@ -135,12 +144,12 @@ public class Server extends Thread {
         return list;
     }
 
-    public static String[] getServerClients() {
+    public String[] getServerClients() {
         String names[] = { "Thabo", "Ntando", "Luke", "Scott", "Michael" };
         return names;
     }
 
-    public static String generateRandomMessage(int length) {
+    public String generateRandomMessage(int length) {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String smallCharacters = "abcdefghijklmnopqrstuvwxyz";
         StringBuilder randomString = new StringBuilder();
