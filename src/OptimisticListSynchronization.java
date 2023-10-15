@@ -1,15 +1,17 @@
+// This is used for managing the list of messages in each client or in the server. This approach checks for conflicts at the time of committing an operation rather than when it is started.
+
 @SuppressWarnings({ "unchecked", "rawtypes" })
 
 public class OptimisticListSynchronization<T> {
     private Message<T> head;
 
     public OptimisticListSynchronization() {
-        head = new Message(Integer.MIN_VALUE, "Random", "JP", "JK");
-        head.next = new Message(Integer.MAX_VALUE, "Random", "JG", "JK");
+        this.head = new Message(Integer.MIN_VALUE, "Random", "JP", "JK");
+        this.head.next = new Message(Integer.MAX_VALUE, "Random", "JG", "JK");
     }
 
     private boolean validate(Message predecessor, Message current) {
-        Message messageNode = head;
+        Message messageNode = this.head;
         while (messageNode.hashCodeKey <= predecessor.hashCodeKey) {
             if (messageNode == predecessor) {
                 return predecessor.next == current;
@@ -20,7 +22,7 @@ public class OptimisticListSynchronization<T> {
     }
 
     public boolean write(T item, String message, String recipient, String sender) {
-        Message predecessor = head, current = predecessor.next;
+        Message predecessor = this.head, current = predecessor.next;
         int hashCodeKey = item.hashCode();
         while (current.hashCodeKey <= hashCodeKey) {
             if (item == current.item) {
@@ -53,7 +55,7 @@ public class OptimisticListSynchronization<T> {
     }
 
     public boolean read(T item) {
-        Message predecessor = head, current = head.next;
+        Message predecessor = this.head, current = this.head.next;
         int hashCodeKey = item.hashCode();
         printMessageList();
         while (current.hashCodeKey <= hashCodeKey) {
@@ -68,7 +70,7 @@ public class OptimisticListSynchronization<T> {
             current.lock.lock();
             if (validate(predecessor, current)) {
                 if (current.item == item) {
-                    predecessor.next = current.next;
+                    this.head.next = new Message(Integer.MAX_VALUE, "Random", "JG", "JK");
                     return true;
                 } else {
                     return false;
@@ -82,7 +84,7 @@ public class OptimisticListSynchronization<T> {
     }
 
     private void printMessageList() {
-        Message current = head.next;
+        Message current = this.head.next;
         String outputString = "Message List:\n";
         if (current.getContent() != "Random") {
             outputString += "(RECEIVE) [" + current.threadName + "] { recipient: " + current.getRecipient() + ", sender: " + current.getSender() + ", Content: " + current.getContent() + " }\n";
