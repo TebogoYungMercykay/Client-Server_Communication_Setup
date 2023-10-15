@@ -56,7 +56,7 @@ public class Server extends Thread {
             }
         }
 
-        System.out.println("\nEveryone went Offline in the Server..");
+        System.out.println("\nEveryone went Offline in the Server..\n");
         System.out.println("Server Highlights for All Clients:");
         this.printAllReceivedMessages();
         System.out.println("\nServer is Offline..");
