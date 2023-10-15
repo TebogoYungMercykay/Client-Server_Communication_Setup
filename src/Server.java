@@ -40,6 +40,16 @@ public class Server extends Thread {
         }
     }
 
+    public void printAllReceivedMessages() {
+        // Print the clientMessages map
+        for (Map.Entry<String, List<Message>> entry : clientMessages.entrySet()) {
+            System.out.println("Messages SENT to " + entry.getKey() + ":");
+            for (Message message : entry.getValue()) {
+                System.out.println(message.messageDetails());
+            }
+        }
+    }
+
     public void run() {
         Queue<String> mySenders = generateSender(this.numMessages + 1);
         Queue<String> myReceivers = generateReceiver(this.numMessages + 1);
@@ -57,7 +67,8 @@ public class Server extends Thread {
                     String sentMessage = getMessage();
                     myClient.write(sentMessage, recipient, sender);
                     Message messageObject = new Message(Thread.currentThread(),sentMessage, recipient, sender);
-                    setMessage(recipient, messageObject); // Add the message to the map
+                    // Adding the Message to the Map for the Receiver
+                    setMessage(recipient, messageObject);
                     try {
                         long time = (int) Math.floor(Math.random() * (1000 + 1 - 100 + 1) + 100);
                         Thread.sleep(time);
