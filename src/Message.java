@@ -15,7 +15,9 @@ public class Message<T> {
     public Lock lock = new ReentrantLock();
     String threadName;
 
-    public Message(String message, String recipient, String sender) {
+    public Message(T item, String message, String recipient, String sender) {
+        this.next = null;
+        this.item = item;
         this.sender = sender;
         this.recipient = recipient;
         this.content = message;
@@ -24,11 +26,13 @@ public class Message<T> {
     }
 
     public Message() {
+        this.next = null;
+        this.item = null;
         this.sender = "Jane Doe";
         this.recipient = "John Doe";
         this.content = "Hey There Hero, You've Been Out A Long Time!!";
-        this.key = hashCode();
         this.threadName = Thread.currentThread().getName();
+        this.key = hashCode();
     }
 
     @Override
